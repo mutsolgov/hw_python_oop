@@ -37,11 +37,7 @@ class Training:
     Дополнительные входные переменные:
     LEN_STEP: Длина шага,
     M_IN_KM: Километры,
-    MIN_IN_HOUR: Часы,
-    action: количество совершённых действий (число шагов при ходьбе
-    и беге либо гркбков - при плавании);
-    duration: длительность тренировки в часах;
-    weight: вес спортсмена.
+    MIN_IN_HOUR: Часы.
     """
 
     LEN_STEP: float = 0.65
@@ -53,6 +49,12 @@ class Training:
                  duration: float,
                  weight: float
                  ) -> None:
+        """
+        action: количество совершённых действий (число шагов при ходьбе
+        и беге либо гркбков - при плавании);
+        duration: длительность тренировки в часах;
+        weight: вес спортсмена в кг.
+        """
         self.action = action
         self.duration = duration
         self.weight = weight
@@ -63,8 +65,7 @@ class Training:
 
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
-        mean_speed = self.get_distance() / self.duration
-        return mean_speed
+        return self.get_distance() / self.duration
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -83,17 +84,17 @@ class Running(Training):
     """Тренировка: бег.
 
     Дополнительные входные переменные:
-    calories_m: первый коэффицент:
-    calories_s: второй коэффицент.
+    CALORIES_M: первый коэффицент:
+    CALORIES_S: второй коэффицент.
     """
 
-    calories_m = 18
-    calories_s = 1.79
+    CALORIES_M: int = 18
+    CALORIES_S: float = 1.79
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        return ((self.calories_m * self.get_mean_speed()
-                + self.calories_s) * self.weight / self.M_IN_KM
+        return ((self.CALORIES_M * self.get_mean_speed()
+                + self.CALORIES_S) * self.weight / self.M_IN_KM
                 * self.duration * self.MIN_IN_HOUR)
 
 
@@ -102,45 +103,45 @@ class SportsWalking(Training):
     """Тренировка: спортивная ходьба.
 
     Дополнительные входные переменные:
-    CALORIES_WEIGHT_MULTIPLIER: первый коэффицент;
-    CALORIES_SPEED_HEIGHT_MULTIPLIER: второй коэффицент;
-    KMH_IN_MSEC: перевод скорости в метрах в секунду;
-    CM_IN_M: 100 см. в 1 м.
+    CALORIES_C1: первый коэффицент;
+    CALORIES_C2: второй коэффицент;
+    KM_IN_MS: перевод скорости в метрах в секунду;
+    CENTI_IN_MET: 100 см. в 1 м.
     """
 
-    CALORIES_WEIGHT_MULTIPLIER = 0.035
-    CALORIES_SPEED_HEIGHT_MULTIPLIER = 0.029
-    KMH_IN_MSEC = 0.278
-    CM_IN_M = 100
+    CALORIES_C1: float = 0.035
+    CALORIES_C2: float = 0.029
+    KM_IN_MS: float = 0.278
+    CENTI_IN_MET: int = 100
 
     def __init__(self,
                  action: int,
                  duration: float,
                  weight: float,
                  height: int) -> None:
+        """height: рост спортсмена в см."""
         super().__init__(action, duration, weight)
         self.height = height
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        return ((self.CALORIES_WEIGHT_MULTIPLIER * self.weight
-                + (self.get_mean_speed() * self.KMH_IN_MSEC)**2 / (self.height
-                 / self.CM_IN_M) * self.CALORIES_SPEED_HEIGHT_MULTIPLIER
+        return ((self.CALORIES_C1 * self.weight
+                + (self.get_mean_speed() * self.KM_IN_MS)**2 / (self.height
+                 / self.CENTI_IN_MET) * self.CALORIES_C2
                  * self.weight) * (self.duration * self.MIN_IN_HOUR))
 
 
-@dataclass
 class Swimming(Training):
     """Тренировка: плавание.
 
     Дополнительные входные переменные:
-    lenght_pool - длина бассейна в метрах;
-    count_pool - сколько раз пользователь переплыл бассейн;
+    CALORIES_SWIMMING_1: первый коэффицент;
+    CALORIES_SWIMMING_2: второй коэффицент;
     LEN_STEP: переопределение расстояния, пройденного за один гребок.
     """
 
-    CALORIES_SWIMMING_1 = 1.1
-    CALORIES_SWIMMING_2 = 2
+    CALORIES_SWIMMING_1: float = 1.1
+    CALORIES_SWIMMING_2: int = 2
     LEN_STEP: float = 1.38
 
     def __init__(self,
@@ -149,6 +150,10 @@ class Swimming(Training):
                  weight: float,
                  length_pool: float,
                  count_pool: int) -> None:
+        """
+        lenght_pool - длина бассейна в метрах;
+        count_pool - сколько раз пользователь переплыл бассейн.
+        """
         super().__init__(action, duration, weight)
         self.length_pool = length_pool
         self.count_pool = count_pool
